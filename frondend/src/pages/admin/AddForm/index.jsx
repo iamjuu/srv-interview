@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import Axios from '../../../Instance/Instance';
 import Swal from 'sweetalert2'; // Import SweetAlert2
-
+import { useNavigate } from 'react-router-dom';
 const ProductForm = () => {
+  const Navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -36,29 +37,29 @@ const ProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!formData.name.trim() || !formData.price || !formData.image) {
       setMessage('Please fill in all fields');
       return;
     }
-
+  
     if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
       setMessage('Please enter a valid price');
       return;
     }
-
+  
     const productData = new FormData();
     productData.append('name', formData.name);
     productData.append('price', formData.price);
     productData.append('image', formData.image);
-
+  
     try {
       const response = await Axios.post('/admin', productData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+  
       if (response.status === 200) {
         // Display success SweetAlert message
         Swal.fire({
@@ -66,13 +67,14 @@ const ProductForm = () => {
           text: 'The product has been successfully added.',
           icon: 'success',
           confirmButtonText: 'OK',
+        }).then(() => {
+          Navigate('/adminhome'); // Navigate after user clicks "OK"
         });
       }
-
     } catch (error) {
       setMessage('Error adding product: ' + error.message);
     }
-
+  
     setFormData({
       name: '',
       price: '',
@@ -80,6 +82,7 @@ const ProductForm = () => {
     });
     setImagePreview(null);
   };
+  
 
   return (
     <div className="w-full max-w-md mx-auto mt-12 p-6 border border-gray-300 rounded-lg shadow-lg">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MoveUpRight } from "lucide-react";
+import { MoveUpRight,Bell } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css"; // Import AOS styles
 import RegisterButton from '../arrowBtn'
@@ -35,11 +35,14 @@ const Navbar = () => {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-gray-600 hover:text-blue-500" data-aos="fade-up">
-            HOME
+            Home
+          </Link>
+          <Link to="/settings" className="text-gray-600 hover:text-blue-500" data-aos="fade-up">
+            Settings
           </Link>
         <p>
-          notification
-        </p>
+        <Bell /> 
+               </p>
         
 
         

@@ -7,56 +7,78 @@ const ProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [productToDelete, setProductToDelete] = useState(null);
   const [editFormData, setEditFormData] = useState({
     name: '',
     price: '',
-    img: null
+    img: null,
+    imglink: ''
   });
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const fetchProducts = () => {
-    Axios.get('/get-product')
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching products:', error);
-      });
+  const fetchProducts = async () => {
+    try {
+      const response = await Axios.get('/get-product');
+      console.log('Fetched products:', response.data);
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      try {
-        await Axios.delete(`/delete-product/${id}`);
-        setProducts(products.filter(product => product.id !== id));
-        alert('Product deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Error deleting product. Please try again.');
-      }
+  const openDeleteModal = (product) => {
+    console.log('Opening delete modal for product:', product);
+    setProductToDelete(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!productToDelete?._id) {
+      console.error('No product ID provided for deletion');
+      return;
+    }
+
+    try {
+      console.log('Deleting product with ID:', productToDelete._id);
+      await Axios.delete(`/delete-product/${productToDelete._id}`);
+      await fetchProducts();
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Error deleting product. Please try again.');
     }
   };
 
   const handleEdit = (product) => {
+    if (!product) {
+      console.error('No product provided for editing');
+      return;
+    }
+  
+    console.log('Editing product:', product);
     setSelectedProduct(product);
     setEditFormData({
-      name: product.name,
-      price: product.price,
-      img: null
+      name: product.name || '',
+      price: product.price?.toString() || '',
+      img: null,
+      imglink: product.imglink || ''
     });
     setIsEditModalOpen(true);
   };
 
-  const handleEditFormChange = (e) => {
-    const { name, value, files } = e.target;
-    if (files) {
+  const handleEditInputChange = (e) => {
+    const { name, value, type, files } = e.target;
+    
+    if (type === 'file') {
       setEditFormData(prev => ({
         ...prev,
-        [name]: files[0]
+        img: files[0]
       }));
     } else {
       setEditFormData(prev => ({
@@ -65,31 +87,74 @@ const ProductManagement = () => {
       }));
     }
   };
-
+  
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!selectedProduct?._id) {
+      console.error('No product selected for update');
+      return;
+    }
+  
     try {
       const formData = new FormData();
+      
       formData.append('name', editFormData.name);
       formData.append('price', editFormData.price);
+      
       if (editFormData.img) {
         formData.append('img', editFormData.img);
       }
-
-      await Axios.put(`/update-product/${selectedProduct.id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      fetchProducts(); // Refresh the products list
-      setIsEditModalOpen(false);
-      alert('Product updated successfully!');
+      
+      if (!editFormData.img && editFormData.imglink) {
+        formData.append('imglink', editFormData.imglink);
+      }
+  
+      console.log('Updating product with ID:', selectedProduct._id);
+      console.log('Form data values:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+      
+      const response = await Axios.put(
+        `/update-product/${selectedProduct._id}`, 
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      if (response.data?.updatedProduct) {
+        setProducts(prevProducts => 
+          prevProducts.map(product => 
+            product._id === response.data.updatedProduct._id 
+              ? response.data.updatedProduct 
+              : product
+          )
+        );
+        
+        setIsEditModalOpen(false);
+        setSelectedProduct(null);
+        setEditFormData({
+          name: '',
+          price: '',
+          img: null,
+          imglink: ''
+        });
+      } else {
+        throw new Error('Invalid server response');
+      }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Error updating product. Please try again.');
+      alert('Failed to update product. Please try again.');
     }
   };
+
+  const filteredProducts = products.filter(product =>
+    product.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -100,10 +165,10 @@ const ProductManagement = () => {
           Product Management
         </h1>
         <Link to='/admin/addform'>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors">
-          <Plus className="w-4 h-4" />
-          Add Product
-        </button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors">
+            <Plus className="w-4 h-4" />
+            Add Product
+          </button>
         </Link>
       </div>
 
@@ -132,13 +197,13 @@ const ProductManagement = () => {
             <tr>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Product Name</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Price</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">img</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Image</th>
               <th className="px-6 py-3 text-right text-sm font-semibold text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {products.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50">
+            {filteredProducts.map((product) => (
+              <tr key={product._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 text-sm text-gray-900">{product.name}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">${product.price}</td>
                 <td className="px-6 py-4 text-sm text-gray-600">
@@ -158,7 +223,7 @@ const ProductManagement = () => {
                   </button>
                   <button
                     className="text-red-600 hover:text-red-800 flex items-center gap-1"
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => openDeleteModal(product)}
                   >
                     <Trash className="w-4 h-4" />
                     Delete
@@ -192,7 +257,7 @@ const ProductManagement = () => {
                   type="text"
                   name="name"
                   value={editFormData.name}
-                  onChange={handleEditFormChange}
+                  onChange={handleEditInputChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -205,7 +270,7 @@ const ProductManagement = () => {
                   type="number"
                   name="price"
                   value={editFormData.price}
-                  onChange={handleEditFormChange}
+                  onChange={handleEditInputChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -217,10 +282,20 @@ const ProductManagement = () => {
                 <input
                   type="file"
                   name="img"
-                  onChange={handleEditFormChange}
+                  onChange={handleEditInputChange}
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   accept="image/*"
                 />
+                {editFormData.imglink && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">Current image:</p>
+                    <img
+                      src={`http://localhost:7000/public/${editFormData.imglink}`}
+                      alt="Current product"
+                      className="mt-1 w-32 h-32 object-cover rounded"
+                    />
+                  </div>
+                )}
               </div>
               <div className="flex justify-end gap-4">
                 <button
@@ -238,6 +313,37 @@ const ProductManagement = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold">Confirm Delete</h2>
+              <p className="mt-2 text-gray-600">
+                Are you sure you want to delete {productToDelete?.name}? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setProductToDelete(null);
+                }}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

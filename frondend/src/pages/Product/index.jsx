@@ -16,6 +16,8 @@ const ProductCard = () => {
   }, []);
 
   const handleSubscribe = (productId) => {
+    console.log(productId,'produdd');
+    
     setSubscriptions((prev) => ({
       ...prev,
       [productId]: !prev[productId],
@@ -58,10 +60,10 @@ const ProductCard = () => {
               <span className="text-sm text-gray-600">/month</span>
             </p>
             <button
-              onClick={() => handleSubscribe(product._id.$oid)}
+              onClick={() => handleSubscribe(product._id)}
               className="w-full border py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-200"
             >
-              {subscriptions[product._id.$oid] ? "Unsubscribe" : "Subscribe"}
+              {subscriptions[product._id] ? "Unsubscribe" : "Subscribe"}
             </button>
           </div>
         </div>
