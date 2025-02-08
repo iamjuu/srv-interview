@@ -8,6 +8,7 @@ import Home from './pages/home'
 import Settings from './pages/settings'
 import NotFound from './pages/NotFound/NotFound'
 import Protected from './pages/Protected/protectedRouter'
+import Notification from './pages/notification/notification'
 import AdminHome from './pages/admin/adminHome'
 const App = () => {
   return (
@@ -19,6 +20,8 @@ const App = () => {
       <Route path="/settings" element={<Settings />} />
       <Route path="/" element={<Home />} />
       <Route path="/adminhome" element={<AdminHome />} />
+      <Route path="/notification" element={<Notification />} />
+
       </Routes>
     </div>
   );

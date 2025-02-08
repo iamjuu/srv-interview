@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Axios from '../../Instance/Instance'; // Assuming Axios is set up for your API calls
 import { Link } from 'react-router-dom';
+import { useUser } from '../../context/contaxt';
 
 const LoginPage = () => {
+  const { updateUserData } = useUser();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -30,11 +32,19 @@ const LoginPage = () => {
       setLoading(false);
       return;
     }
-
+  
     // Check if it's an admin login
     if (formData.email === 'admin@gmail.com' && formData.password === 'Admin123') {
-      localStorage.setItem('userRole', 'admin'); // Store role for session management
-      navigate('/adminhome'); // Redirect to admin dashboard
+      // Set admin data in both localStorage and context
+      localStorage.setItem('userRole', 'admin');
+      localStorage.setItem('userToken', 'admin-token');
+      
+      updateUserData({
+        status: 'admin',
+        token: 'admin-token'
+      });
+      
+      navigate('/adminhome');
       return;
     }
   
@@ -43,16 +53,24 @@ const LoginPage = () => {
   
       if (response.status === 200) {
         setMessage('Login successful!');
-        localStorage.setItem('userToken', response.data.token); // Store JWT token
-        navigate('/'); // Redirect user to home
+        
+        // Save data to both localStorage and context
+        localStorage.setItem('userToken', response.data.token);
+        
+        updateUserData({
+          status: response.data.status,
+          token: response.data.token
+        });
+  
+        navigate('/');
       } else {
         setMessage('Invalid email or password');
       }
     } catch (error) {
       setMessage('Error: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
     }
-  
-    setLoading(false);
   };
 
   return (
