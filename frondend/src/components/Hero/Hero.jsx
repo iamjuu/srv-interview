@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Banner } from "../../Assets";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   useEffect(() => {
@@ -25,11 +26,13 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row sm:space-x-4 justify-center sm:justify-start">
+            <Link to='/login'>
+            
             <button
               className="bg-blue-500 text-white px-6 py-3 rounded-full flex items-center mb-4 sm:mb-0"
               data-aos="fade-up"
             >
-              Explore
+              Login in
               <svg
                 className="w-4 h-4 ml-2"
                 fill="none"
@@ -44,6 +47,7 @@ const Hero = () => {
                 />
               </svg>
             </button>
+            </Link>
             <button
               className="bg-white text-gray-800 px-6 py-3 rounded-full border border-gray-300 flex items-center"
               data-aos="fade-down"

@@ -372,6 +372,8 @@ const ProductManagement = () => {
     <div className="p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
+        <Link to='/login'>
+        <button className='border p-2 rounded-full hover:bg-blue-500 hover:text-white'> Sign out</button></Link>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Package className="w-6 h-6" />
           Product Management

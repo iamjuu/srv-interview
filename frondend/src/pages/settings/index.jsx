@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Store } from 'lucide-react';
+import { ArrowLeft, Store } from 'lucide-react';
 import Axios from '../../Instance/Instance';
+import { useNavigate } from 'react-router-dom';
 
 const SettingsPage = () => {
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('general');
   const [isChecked, setIsChecked] = useState(false);
 
@@ -44,10 +46,14 @@ const SettingsPage = () => {
       setIsChecked(!e.target.checked);
     });
   };
-
+  const backbtn =()=>{
+    navigate(-1)
+  }
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
+      <ArrowLeft onClick={backbtn} />
+
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-gray-500 mt-2">Manage your notification configurations</p>
       </div>

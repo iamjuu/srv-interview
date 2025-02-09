@@ -23,6 +23,8 @@ const ProductCard = () => {
       }
     })
     .then((response) => {
+      console.log(response.data.products);
+      
       setProducts(response.data.products); // Set the products data in state
       const subscribedProductIds = response.data.subscribedProducts.map(product => product._id); // Extract subscribed product IDs
       setSubscriptions(subscribedProductIds);  // Set the list of subscribed product IDs

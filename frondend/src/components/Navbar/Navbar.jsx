@@ -62,7 +62,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link to="/settings" className="text-gray-600 hover:text-blue-500" data-aos="fade-up">
-            Settings
+          Notification Settings
           </Link>
           <button onClick={notificationbtn} className="text-gray-600 relative hover:text-blue-500">
             <div className="w-4 h-4 rounded-full mt-[-6px] ml-[3px] flex  justify-center items-center p-2 absolute bg-blue-300"> {count}</div> <Bell />
@@ -101,23 +101,12 @@ const Navbar = () => {
         <div className="md:hidden" data-aos="fade-up">
           <div className="flex flex-col space-y-2 px-6 py-4">
             <Link to="/" className="text-black hover:text-blue-500">
-              HOME
+              Home
             </Link>
-            <Link to="/about" className="text-gray-600 hover:text-blue-500">
-              ABOUT
+            <Link to="/settings" className="text-gray-600 hover:text-blue-500">
+              Notification Settings
             </Link>
-            <Link to="/services" className="text-gray-600 hover:text-blue-500">
-              SERVICES
-            </Link>
-            <Link to="/products" className="text-gray-600 hover:text-blue-500">
-              PRODUCTS
-            </Link>
-            <Link to="/blog" className="text-gray-600 hover:text-blue-500">
-              BLOG
-            </Link>
-            <Link to="/contact" className="text-gray-600 hover:text-blue-500">
-              CONTACT
-            </Link>
+         
           <button onClick={notificationbtn} className="text-gray-600 relative hover:text-blue-500">
             <div className="w-3 h-3 rounded-full   absolute bg-blue-300"/> <Bell /> 
           </button>
