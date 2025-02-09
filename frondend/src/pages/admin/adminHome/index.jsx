@@ -37,9 +37,15 @@ const ProductManagement = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await Axios.get('/get-product');
+      const token = localStorage.getItem('userToken'); // Make sure you fetch the correct token
+      const response = await Axios.get('/get-product', {  
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
       console.log('Fetched products:', response.data);
-      setProducts(response.data);
+      setProducts(response.data.products);
     } catch (error) {
       console.error('Error fetching products:', error);
       setError('Failed to fetch products. Please try again.');

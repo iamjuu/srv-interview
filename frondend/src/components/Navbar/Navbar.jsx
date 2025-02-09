@@ -33,16 +33,20 @@ const Navbar = () => {
       Navigate('/notification')
     }
   };
-  useEffect(()=>{
-    const countproduct= ()=>{
-const response = Axios.get('/countproduct')
-// console.log(response.Data);
-// setCount(response.Data.count)
+  useEffect(() => {
+    const countProduct = async () => {
+      try {
+        const response = await Axios.get("/countproduct"); 
+        console.log(response.data.count);
+        setCount(response.data.count);  
+        
+      } catch (error) {
+        console.error("Error fetching product count:", error);
+      }
+    };
 
-    }
-    countproduct()
-  })
-
+    countProduct();
+  }, []);
   return (
     <nav>
       <div
@@ -61,7 +65,7 @@ const response = Axios.get('/countproduct')
             Settings
           </Link>
           <button onClick={notificationbtn} className="text-gray-600 relative hover:text-blue-500">
-            <div className="w-4 h-4 rounded-full mt-[-6px] ml-[3px] absolute bg-blue-300"/> <Bell />
+            <div className="w-4 h-4 rounded-full mt-[-6px] ml-[3px] flex  justify-center items-center p-2 absolute bg-blue-300"> {count}</div> <Bell />
           </button>
 
           <RegisterButton

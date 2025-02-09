@@ -53,8 +53,8 @@ const LoginPage = () => {
 
     // Admin Login Check
     if (formData.email === 'admin@gmail.com' && formData.password === 'admin') {
-      sessionStorage.setItem('userRole', 'admin');
-      sessionStorage.setItem('userToken', 'adminToken123'); // Dummy token for admin
+      localStorage.setItem('userRole', 'admin');
+      localStorage.setItem('userToken', 'adminToken123'); // Dummy token for admin
       setMessage('Admin login successful!');
       navigate('/adminhome');
       return;

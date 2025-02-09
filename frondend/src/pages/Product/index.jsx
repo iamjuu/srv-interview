@@ -2,26 +2,48 @@ import React, { useState, useEffect } from 'react';
 import Axios from '../../Instance/Instance';
 
 const ProductCard = () => {
-  const [subscriptions, setSubscriptions] = useState({});
+  const [subscriptions, setSubscriptions] = useState([]);  // Use an array to store subscribed productIds
   const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    Axios.get('/get-product')
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error('Error fetching products:', error);
-      });
+    // Fetch the user token from localStorage
+    const token = localStorage.getItem('userToken');
+    console.log(token);
+
+    if (!token) {
+      console.error('Token is not found. Please log in.');
+      return;
+    }
+
+    // Fetch both the products and subscriptions
+    Axios.get('/get-product', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    })
+    .then((response) => {
+      setProducts(response.data.products); // Set the products data in state
+      const subscribedProductIds = response.data.subscribedProducts.map(product => product._id); // Extract subscribed product IDs
+      setSubscriptions(subscribedProductIds);  // Set the list of subscribed product IDs
+    })
+    .catch((error) => {
+      setError('Error fetching products');
+      console.error('Error fetching products:', error);
+    });
   }, []);
 
   const handleSubscribe = (productId) => {
-    console.log(productId,'produdd');
+    console.log(productId, 'product id');
     
-    setSubscriptions((prev) => ({
-      ...prev,
-      [productId]: !prev[productId],
-    }));
+    setSubscriptions((prev) => {
+      // If already subscribed, unsubscribe, else subscribe
+      if (prev.includes(productId)) {
+        return prev.filter(id => id !== productId); // Remove productId from subscriptions if it's already subscribed
+      } else {
+        return [...prev, productId]; // Add productId to subscriptions
+      }
+    });
 
     const token = localStorage.getItem('userToken');
     if (!token) {
@@ -34,12 +56,12 @@ const ProductCard = () => {
         'Authorization': `Bearer ${token}`,
       }
     })
-      .then((response) => {
-        console.log('Subscription successful:', response.data);
-      })
-      .catch((error) => {
-        console.error('Error subscribing:', error);
-      });
+    .then((response) => {
+      console.log('Subscription successful:', response.data);
+    })
+    .catch((error) => {
+      console.error('Error subscribing:', error);
+    });
   };
 
   return (
@@ -63,7 +85,7 @@ const ProductCard = () => {
               onClick={() => handleSubscribe(product._id)}
               className="w-full border py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-200"
             >
-              {subscriptions[product._id] ? "Unsubscribe" : "Subscribe"}
+              {subscriptions.includes(product._id) ? "Unsubscribe" : "Subscribe"}  {/* Check if productId is in subscriptions */}
             </button>
           </div>
         </div>
