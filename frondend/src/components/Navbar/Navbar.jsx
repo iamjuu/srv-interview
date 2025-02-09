@@ -6,7 +6,9 @@ import "aos/dist/aos.css";
 import Swal from 'sweetalert2';  // Add this import
 import RegisterButton from '../arrowBtn';
 import { useNavigate } from "react-router-dom";
+import Axios  from '../../Instance/Instance'
 const Navbar = () => {
+  const [count,setCount] = useState(0)
   const Navigate = useNavigate()
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -29,21 +31,17 @@ const Navbar = () => {
 
     if (status === 'true') {
       Navigate('/notification')
-      // Swal.fire({
-      //   position: 'top-end',
-      //   icon: 'success',
-      //   title: 'Subscription Successful!',
-      //   toast: true,
-      //   showConfirmButton: false,
-      //   timer: 3000,
-      //   timerProgressBar: true,
-      //   didOpen: (toast) => {
-      //     toast.addEventListener('mouseenter', Swal.stopTimer)
-      //     toast.addEventListener('mouseleave', Swal.resumeTimer)
-      //   }
-      // });
     }
   };
+  useEffect(()=>{
+    const countproduct= ()=>{
+const response = Axios.get('/countproduct')
+// console.log(response.Data);
+// setCount(response.Data.count)
+
+    }
+    countproduct()
+  })
 
   return (
     <nav>
@@ -62,8 +60,8 @@ const Navbar = () => {
           <Link to="/settings" className="text-gray-600 hover:text-blue-500" data-aos="fade-up">
             Settings
           </Link>
-          <button onClick={notificationbtn} className="text-gray-600 hover:text-blue-500">
-            <Bell />
+          <button onClick={notificationbtn} className="text-gray-600 relative hover:text-blue-500">
+            <div className="w-4 h-4 rounded-full mt-[-6px] ml-[3px] absolute bg-blue-300"/> <Bell />
           </button>
 
           <RegisterButton
@@ -116,6 +114,9 @@ const Navbar = () => {
             <Link to="/contact" className="text-gray-600 hover:text-blue-500">
               CONTACT
             </Link>
+          <button onClick={notificationbtn} className="text-gray-600 relative hover:text-blue-500">
+            <div className="w-3 h-3 rounded-full   absolute bg-blue-300"/> <Bell /> 
+          </button>
           </div>
         </div>
       )}
